@@ -1,0 +1,48 @@
+#!/usr/bin/bash
+#SBATCH -N 1
+#SBATCH --ntasks-per-node=20
+#SBATCH -t 0:30:00
+#SBATCH -J tunnel
+#SBATCH --gres=gpu:V100:1
+##SATCH --mail-type=BEGIN
+##TCH --mail-type=END
+## get tunneling info
+XDG_RUNTIME_DIR=""
+ipnport=$(shuf -i8000-9999 -n1)
+ipnip=$(hostname -i)
+
+module purge
+module load nvidia/10.1
+##clean up the enviroment 
+conda env remove -n torch_env #only use if your env is bugged/need reinstall
+## print tunneling instructions to jupyter-log
+## start an ipcluster instance and launch jupyter server
+module load anaconda3 
+conda create -n torch_env -y pytorch==1.3 torchvision==0.4.1 cudatoolkit=10.1 cudnn=7.6 pyyaml --channel pytorch 
+eval $(conda shell.bash hook)
+##conda init bash
+source activate torch_env
+
+printf "Torch Env successfull installed \n\n"
+
+conda remove -c anaconda pyyaml -y
+#conda install -c acellera cuda-runtime
+#conda remove -c acellera cuda-runtime
+printf "\n\nCuda Runtime successfully installed and PPYAML removed ... \n\n\nStarting Requirments Installation \n\n"
+
+#conda install -c conda-forge --file requirements.txt
+#pip install docker==4.0.2
+
+pip install --no-cache-dir -r req.txt
+
+printf "Installation success \n \n \n \n \n"
+
+rm -rf apex/
+
+printf "Starting git clone \n"
+
+SHA=ToUcHMe git clone https://github.com/NVIDIA/apex
+printf "Clonening successfull, starting apex installation ... \n\n\n"
+export TORCH_CUDA_ARCH_LIST="6.0;7.0"
+CUDA_HOME=/software/nvidia/10.1.243 pip install -v --disable-pip-version-check --no-cache-dir --global-option="--cpp_ext" --global-option="--cuda_ext" apex/
+#pip install -v --no-cache-dir apex/

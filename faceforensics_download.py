@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """ Downloads FaceForensics++ and Deep Fake Detection public data release
 Example usage:
     see -h or https://github.com/ondyari/FaceForensics
